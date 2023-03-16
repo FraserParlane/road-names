@@ -1,8 +1,10 @@
 from dataclasses import dataclass
 from typing import Optional, List
+import xml.etree.cElementTree
 from lxml import etree
 import urllib.request
 from tqdm import tqdm
+import pandas as pd
 import numpy as np
 import logging
 import os
@@ -194,6 +196,7 @@ class RoadNames:
         self.xml: Optional[lxml.etree._Element] = None
         self.views: List[View] = []
         self.ways: List = []
+        self.id_table: Optional[pd.DataFrame] = None
 
     def load_box(
             self,
@@ -231,6 +234,32 @@ class RoadNames:
         # Convert to XML
         logging.debug('Converting OSM to XML.')
         self.xml = etree.fromstring(self.osm)
+        self.cxml = xml.etree.cElementTree.fromstring(self.osm)
+
+    def _create_id_lat_lon_table(self):
+        """
+        Each way consists of a list of IDs. These IDs correspond to nodes in the
+        XML file. Create a table of IDs, lat, and lon to quickly convert IDs.
+        """
+        logging.debug('Creating id / lat / lon table.')
+
+        # Walk the tree, and add all relevant id / lat / lon
+        id_dict = {
+            'id': [],
+            'lon': [],
+            'lat': [],
+        }
+        for child in tqdm(self.cxml.iter()):
+            if child.tag == 'node':
+                id_dict['id'].append(child.get('id'))
+                id_dict['lon'].append(child.get('lon'))
+                id_dict['lat'].append(child.get('lat'))
+
+        # Make Pandas table
+        dtypes = {'id': int, 'lon': float, 'lat': float}
+        self.id_table = pd.DataFrame(id_dict)
+        self.id_table = self.id_table.astype(dtypes)
+        self.id_table.sort_values(by=['id'], inplace=True)
 
     def _select_ways(self):
         """
@@ -260,6 +289,9 @@ class RoadNames:
 
         # Load the map data into memory
         self._read_osm()
+
+        # Create a table of ids, lat and lon.
+        self._create_id_lat_lon_table()
 
         # Select ways from the osm data
         self._select_ways()
