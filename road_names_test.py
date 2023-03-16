@@ -1,4 +1,4 @@
-from road_names import RoadNames, BBox, _get_osm_file_cached
+from road_names import RoadNames, BBox, View, Tag, _get_osm_file_cached
 import unittest
 import logging
 import shutil
@@ -36,5 +36,19 @@ class TestRoadNames(unittest.TestCase):
 
         rn = RoadNames()
         rn.load_box(**small_area)
-        rn.plot()
 
+    def test_load_views(self):
+        rn = RoadNames()
+        tag = Tag(k='surface', v='asphalt')
+        view = View(true_tags=[tag])
+        rn.load_views(views=[view])
+
+    def test_preprocess(self):
+        rn = RoadNames()
+        rn.load_box(**small_area)
+        tag = Tag(k='highway')
+        view = View(true_tags=[tag])
+        rn.load_views(views=[view])
+        rn._preprocess()
+        self.assertGreaterEqual(len(rn.views[0].ways), 10)
+        self.assertLessEqual(len(rn.views[0].ways), 1000)
