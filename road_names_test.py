@@ -52,3 +52,4 @@ class TestRoadNames(unittest.TestCase):
         rn._preprocess()
         self.assertGreaterEqual(len(rn.views[0].ways), 10)
         self.assertLessEqual(len(rn.views[0].ways), 1000)
+

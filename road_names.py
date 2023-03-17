@@ -168,6 +168,10 @@ class View:
         if self.false_tags is None:
             self.false_tags = []
 
+        # A place to store the way_ids and way_lonlat
+        self.way_ids: List[List[int]] = []
+        self.way_lonlat: List[pd.DataFrame] = []
+
     def test_and_add_way(
             self,
             way,
@@ -260,6 +264,7 @@ class RoadNames:
         self.id_table = pd.DataFrame(id_dict)
         self.id_table = self.id_table.astype(dtypes)
         self.id_table.sort_values(by=['id'], inplace=True)
+        self.id_table.set_index('id', inplace=True)
 
     def _select_ways(self):
         """
@@ -278,8 +283,23 @@ class RoadNames:
 
         logging.debug('Processing views.')
         for view in tqdm(self.views):
+
+            # Find the Way elements that are relevant to the View, and add them.
             for way in self.ways:
                 view.test_and_add_way(way)
+
+            # Now that all the relevant Ways have been added, extract the IDs
+            # of the relevant waypoints into a list of lists.
+            for way in view.ways:
+                way_ids = []
+                for child in way.getchildren():
+                    if child.tag == 'nd':
+                        way_ids.append(int(child.get('ref')))
+                view.way_ids.append(way_ids)
+
+            # Finally, look up these IDs and convert them to lon/lat pairs.
+            for id_list in view.way_ids:
+                view.way_lonlat.append(self.id_table.loc[id_list])
 
     def _preprocess(self):
         """
