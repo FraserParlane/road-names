@@ -66,7 +66,7 @@ class TestRoadNames(unittest.TestCase):
 
     def test_print_highway_types(self):
         rn = RoadNames()
-        rn.load_box(**small_area)
+        rn.load_box(**med_area)
         rn.log_highway_types()
 
     def test_plot(self):

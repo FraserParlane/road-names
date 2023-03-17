@@ -361,7 +361,11 @@ class RoadNames:
         """
         Generate common views
         """
-        highway_types = ['residential', 'tertiary']
+        highway_types = [
+            'residential',
+            'secondary',
+            'tertiary',
+        ]
         views = []
         for value in highway_types:
             tag = Tag(k='highway', v=value)
@@ -408,6 +412,17 @@ class RoadNames:
         path = elements.path
         rect = elements.rect
 
+        # Define the color dictionary
+        colors = ["#ea5545", "#f46a9b", "#ef9b20", "#edbf33", "#ede15b", "#bdcf32", "#87bc45", "#27aeef", "#b33dc6"]
+        colors = {
+            'Street': '#ea5545',
+            'Avenue': '#f46a9b',
+            'Road': '#ede15b',
+            'Drive': '#ef9b20',
+            'Bridge': '#edbf33',
+            'unknown': '#ffffff',
+        }
+
         # Create a document with a grey background
         # Create document with white background
         doc = svg(
@@ -420,11 +435,12 @@ class RoadNames:
             y='0',
             width=str(self.width),
             height=str(self.height),
-            fill='#ffffff',
+            fill='#151515',
         ))
 
         # Iterate through the views
-        for view in self.views:
+        logging.debug('Plotting')
+        for view in tqdm(self.views):
 
             # Iterate through the ways
             for df, way in zip(view.way_lonlat, view.ways):
@@ -433,10 +449,26 @@ class RoadNames:
                     y=df['y'].to_numpy(),
                 )
 
+                # Get the suffix of the street
+                suffix = 'unknown'
+                for child in way.getchildren():
+                    if child.tag != 'tag':
+                        continue
+                    if child.get('k') != 'name':
+                        continue
+                    name = child.get('v')
+                    suffix = name.split(' ')[-1]
+
+                # Get color
+                try:
+                    color = colors[suffix]
+                except KeyError:
+                    color = '#ffffff'
+
                 # Make path and append
                 p = path(
                     d=d,
-                    style='fill:none;stroke-width:1;stroke:rgb(0%,0%,0%);',
+                    style=f'fill:none;stroke-width:1;stroke:{color};',
                 )
                 doc.append(p)
 
