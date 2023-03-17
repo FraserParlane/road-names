@@ -343,13 +343,14 @@ class RoadNames:
             count: int = 10,
     ):
         """
-        Given a loaded bbox, generate the most popular views.
+        Generate common views
         """
-
-        # Iterate through all the tags, and count the instances of highways
-        for child in self.cxml.getiterator():
-            print(child.tag)
-
+        highway_types = ['residential', 'tertiary']
+        views = []
+        for value in highway_types:
+            tag = Tag(k='highway', v=value)
+            views.append(View(true_tags=[tag]))
+        self.load_views(views=views)
 
     def plot(
             self,
@@ -366,7 +367,7 @@ class RoadNames:
         # Process the passed data
         self._preprocess(width=width)
 
-        #
+
 
 
 if __name__ == '__main__':
