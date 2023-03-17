@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional, List
+from lxml import etree, builder
 import xml.etree.cElementTree
-from lxml import etree
 import urllib.request
 from tqdm import tqdm
 import pandas as pd
@@ -186,6 +186,19 @@ class View:
         self.ways.append(way)
 
 
+def _xy_to_svg_d(
+        x: np.ndarray,
+        y: np.ndarray,
+) -> str:
+    """
+    Convert x, y pixel coordinates to an SVG d string.
+    """
+    d = f'M {x[0]} {y[0]}'
+    for ix, iy in zip(x[1:], y[1:]):
+        d += f' L {ix} {iy}'
+    return d
+
+
 class RoadNames:
     def __init__(
             self,
@@ -367,7 +380,49 @@ class RoadNames:
         # Process the passed data
         self._preprocess(width=width)
 
+        # Generate SVG objects
+        elements = builder.ElementMaker()
+        svg = elements.svg
+        path = elements.path
+        rect = elements.rect
 
+        # Create a document with a grey background
+        # Create document with white background
+        doc = svg(
+            xmlns="http://www.w3.org/2000/svg",
+            height=str(self.height),
+            width=str(self.width),
+        )
+        doc.append(rect(
+            x='0',
+            y='0',
+            width=str(self.width),
+            height=str(self.height),
+            fill='#ffffff',
+        ))
+
+        # Iterate through the views
+        for view in self.views:
+
+            # Iterate through the ways
+            for df, way in zip(view.way_lonlat, view.ways):
+                d = _xy_to_svg_d(
+                    x=df['x'].to_numpy(),
+                    y=df['y'].to_numpy(),
+                )
+
+                # Make path and append
+                p = path(
+                    d=d,
+                    style='fill:none;stroke-width:1;stroke:rgb(0%,0%,0%);',
+                )
+                doc.append(p)
+
+        # Save to disk
+        if not os.path.exists('svg'):
+            os.mkdir('svg')
+        with open(f'svg/{self.filename}.svg', 'wb') as f:
+            f.write(etree.tostring(doc, pretty_print=True))
 
 
 if __name__ == '__main__':
