@@ -14,6 +14,12 @@ small_area = {
     'lat_min': 49.2721,
     'lat_max': 49.281,
 }
+med_area = {
+    'lon_min': -123.27,
+    'lon_max': -123.13,
+    'lat_min': 49.23,
+    'lat_max': 49.28,
+}
 
 
 class TestRoadNames(unittest.TestCase):
@@ -58,8 +64,13 @@ class TestRoadNames(unittest.TestCase):
         self.assertGreaterEqual(len(rn.views[0].ways), 10)
         self.assertLessEqual(len(rn.views[0].ways), 1000)
 
-    def test_plot(self):
+    def test_print_highway_types(self):
         rn = RoadNames()
         rn.load_box(**small_area)
+        rn.log_highway_types()
+
+    def test_plot(self):
+        rn = RoadNames()
+        rn.load_box(**med_area)
         rn.generate_views()
         rn.plot()

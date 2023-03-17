@@ -85,6 +85,9 @@ def _get_osm_file(
     # Download data
     url_suffix = f'{bbox.lon_min_str},{bbox.lat_min_str},{bbox.lon_max_str},{bbox.lat_max_str}'
     url = f'https://api.openstreetmap.org/api/0.6/map?bbox={url_suffix}'
+
+    url = f'http://overpass.openstreetmap.ru/cgi/xapi_meta?*[bbox={url_suffix}]'
+
     filepath = f'osm/map_{bbox.id}.osm'
     logging.debug(f'Downloading {url}')
     urllib.request.urlretrieve(url, filepath)
@@ -364,6 +367,25 @@ class RoadNames:
             tag = Tag(k='highway', v=value)
             views.append(View(true_tags=[tag]))
         self.load_views(views=views)
+
+    def log_highway_types(self):
+        types = {}
+        for child in self.cxml.iter():
+            if child.tag == 'way':
+                for attrib in child.iter():
+                    if attrib.tag != 'tag':
+                        continue
+                    if attrib.get('k') != 'highway':
+                        continue
+                    value = attrib.get('v')
+                    if value in types.keys():
+                        types[value] += 1
+                    else:
+                        types[value] = 1
+        df = pd.DataFrame(data={'type': types.keys(), 'count': types.values()})
+        df.sort_values(by=['count'], inplace=True, ascending=False)
+        logging.debug(df)
+
 
     def plot(
             self,
