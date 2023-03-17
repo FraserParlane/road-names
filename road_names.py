@@ -189,7 +189,7 @@ class View:
 class RoadNames:
     def __init__(
             self,
-            use_cache: bool = True
+            use_cache: bool = True,
     ):
         """
         RoadNames first takes a region (load_box) and then can plot it (plot).
@@ -201,6 +201,9 @@ class RoadNames:
         self.views: List[View] = []
         self.ways: List = []
         self.id_table: Optional[pd.DataFrame] = None
+        self.width: Optional[Int] = None
+        self.height: Optional[Int] = None
+        self.filename: Optional[str] = None
 
     def load_box(
             self,
@@ -297,15 +300,31 @@ class RoadNames:
                         way_ids.append(int(child.get('ref')))
                 view.way_ids.append(way_ids)
 
-            # Finally, look up these IDs and convert them to lon/lat pairs.
+            # Look up these IDs and convert them to lon/lat pairs.
             for id_list in view.way_ids:
                 view.way_lonlat.append(self.id_table.loc[id_list])
 
-    def _preprocess(self):
+        # convert the lat, lon to a pixel position. Many of these values will
+        # land outside the window range as they are a part of paths that pass
+        # through the window.
+        for view in self.views:
+            for df in view.way_lonlat:
+                df['x'] = (df['lon'] - self.bbox.lon_min) / self.bbox.lon_span * self.width
+                y = (df['lat'] - self.bbox.lat_min) / self.bbox.lat_span * self.height
+                df['y'] = self.height - y
+
+    def _preprocess(
+            self,
+            width: int = 1000,
+    ):
         """
         Once all the data and Views have been added, process the data in
         preparation for plotting.
         """
+
+        # Store parameters
+        self.width = width
+        self.height = int(self.width * self.bbox.htw_ratio)
 
         # Load the map data into memory
         self._read_osm()
@@ -322,11 +341,18 @@ class RoadNames:
     def plot(
             self,
             filename: str = 'default',
+            width: int = 1000,
     ):
         """
         Create a plot of the defined BBox.
         """
-        self._preprocess()
+
+        # Store attributes, and process data
+        self.filename = filename
+
+        self._preprocess(
+            width=width
+        )
 
 
 if __name__ == '__main__':
