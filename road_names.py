@@ -197,7 +197,7 @@ class RoadNames:
         self.bbox: Optional[BBox] = None
         self.use_cache = use_cache
         self.osm: Optional[bytes] = None
-        self.xml: Optional[lxml.etree._Element] = None
+        self.xml: Optional[lxml.etree.Element] = None
         self.views: List[View] = []
         self.ways: List = []
         self.id_table: Optional[pd.DataFrame] = None
@@ -221,6 +221,12 @@ class RoadNames:
             lat_min=lat_min,
             lat_max=lat_max,
         )
+
+        # Load the map data into memory
+        self._read_osm()
+
+        # Create a table of ids, lat and lon.
+        self._create_id_lat_lon_table()
 
     def load_views(
             self,
@@ -326,17 +332,24 @@ class RoadNames:
         self.width = width
         self.height = int(self.width * self.bbox.htw_ratio)
 
-        # Load the map data into memory
-        self._read_osm()
-
-        # Create a table of ids, lat and lon.
-        self._create_id_lat_lon_table()
-
         # Select ways from the osm data
         self._select_ways()
 
         # Process the Views so that they contain the correct Ways
         self._process_views()
+
+    def generate_views(
+            self,
+            count: int = 10,
+    ):
+        """
+        Given a loaded bbox, generate the most popular views.
+        """
+
+        # Iterate through all the tags, and count the instances of highways
+        for child in self.cxml.getiterator():
+            print(child.tag)
+
 
     def plot(
             self,
@@ -350,9 +363,10 @@ class RoadNames:
         # Store attributes, and process data
         self.filename = filename
 
-        self._preprocess(
-            width=width
-        )
+        # Process the passed data
+        self._preprocess(width=width)
+
+        #
 
 
 if __name__ == '__main__':

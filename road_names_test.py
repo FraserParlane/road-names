@@ -43,6 +43,11 @@ class TestRoadNames(unittest.TestCase):
         view = View(true_tags=[tag])
         rn.load_views(views=[view])
 
+    def test_generate_views(self):
+        rn = RoadNames()
+        rn.load_box(**small_area)
+        rn.generate_views()
+
     def test_preprocess(self):
         rn = RoadNames()
         rn.load_box(**small_area)
@@ -53,3 +58,10 @@ class TestRoadNames(unittest.TestCase):
         self.assertGreaterEqual(len(rn.views[0].ways), 10)
         self.assertLessEqual(len(rn.views[0].ways), 1000)
 
+    def test_plot(self):
+        rn = RoadNames()
+        rn.load_box(**small_area)
+        tag = Tag(k='highway')
+        view = View(true_tags=[tag])
+        rn.load_views(views=[view])
+        rn.plot()
