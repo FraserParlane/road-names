@@ -6,14 +6,14 @@ This package colorizes roads based on their suffix. (e.g., road, street, avenue,
     rn.plot(filename='vancouver')
 ```
 
-Vancouver, BC, Canada
+# Vancouver, BC, Canada
 ![](png/vancouver.png)
 
-San Francisco, California
+# San Francisco, California
 ![](png/sanfrancisco.png)
 
-Kelowna, BC, Canada
+# Kelowna, BC, Canada
 ![](png/kelowna.png)
 
-Lexington, Kentucky
+# Lexington, Kentucky
 ![](png/lexington.png)
