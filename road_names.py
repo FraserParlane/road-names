@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Optional, List
 from lxml import etree, builder
 import xml.etree.cElementTree
+from cairosvg import svg2png
 import urllib.request
 from tqdm import tqdm
 import pandas as pd
@@ -397,10 +398,16 @@ class RoadNames:
             width: int = 1000,
             legend_x: float = 0.05,
             legend_y: float = 0.05,
+            as_svg: bool = True,
+            as_png: bool = True,
+
     ):
         """
         Create a plot of the defined BBox.
         """
+
+        # Generate views
+        self.generate_views()
 
         # Store attributes, and process data
         self.filename = filename
@@ -448,11 +455,16 @@ class RoadNames:
 
             'Street': '#ea5545',
             'Avenue': '#27aeef',
-            'Road': '#b33dc6',
+            'Road': '#ef9b20',
             'Drive': '#bdcf32',
-            'Mall': '#ef9b20',
+            'Mall': '#b33dc6',
             'Boulevard': '#f46a9b',
             'Crescent': '#edbf33',
+            'Court': '#87bc45',
+            'Place': '#D74F00',
+            'Highway': '#606060',
+            'Lane': '#344F73',
+            'Way': '#004645',
 
             # 'Street': '#ea5545',
             # 'Avenue': '#f46a9b',
@@ -549,30 +561,34 @@ class RoadNames:
             # Text
             t = text(
                 x=str(legend_x_abs + line_length + 10),
-                y=str(legend_y_abs + i * y_offset + 5),
-                # style='fill:#DDDDDD;',
+                y=str(legend_y_abs + i * y_offset + 7),
                 style=f'fill:{color};',
             )
-            t.attrib['font-size'] = '1.5em'
-
-            t.text=suffix
+            t.attrib['font-size'] = '18px'
+            t.text = suffix
             doc.append(t)
-
-
-
-            print('a')
 
         # Log missing road suffix colors
         print('Missing colors:')
         for key, val in sorted(color_missing.items(), key=lambda x: x[1]):
             print(f'{key}: {val}')
 
-
         # Save to disk
-        if not os.path.exists('svg'):
-            os.mkdir('svg')
-        with open(f'svg/{self.filename}.svg', 'wb') as f:
-            f.write(etree.tostring(doc, pretty_print=True))
+        svg_string = etree.tostring(doc, pretty_print=True)
+        if as_svg:
+            if not os.path.exists('svg'):
+                os.mkdir('svg')
+            with open(f'svg/{self.filename}.svg', 'wb') as f:
+                f.write(svg_string)
+
+        if as_png:
+            if not os.path.exists('png'):
+                os.mkdir('png')
+            svg2png(
+                bytestring=svg_string,
+                write_to=f'png/{self.filename}.png',
+                scale=2,
+            )
 
 
 if __name__ == '__main__':
