@@ -2,6 +2,7 @@
 This package colorizes roads based on their suffix. (e.g., road, street, avenue, etc.) The map data is automatically downloaded from OpenStreetMap based on the provided coordinates. Below is a minimal example.
 ```python
     # Vancouver, BC
+    from road_names import RoadNames
     rn = RoadNames()
     rn.load_box(lon_min=-123.29, lon_max=-123.00, lat_min=49.23, lat_max=49.37)
     rn.plot(filename='vancouver')
