@@ -1,3 +1,4 @@
+# Roads colorized by suffix
 This package colorizes roads based on their suffix. (e.g., road, street, avenue, etc.) The map data is automatically downloaded from OpenStreetMap based on the provided coordinates. Below is a minimal example.
 ```python
     # Vancouver, BC
@@ -6,14 +7,17 @@ This package colorizes roads based on their suffix. (e.g., road, street, avenue,
     rn.plot(filename='vancouver')
 ```
 
-# Vancouver, BC, Canada
+## Vancouver, BC, Canada
 ![](png/vancouver.png)
 
-# San Francisco, California
+## San Francisco, California
 ![](png/sanfrancisco.png)
 
-# Kelowna, BC, Canada
+## New York, New York
+![](png/newyork.png)
+
+## Kelowna, BC, Canada
 ![](png/kelowna.png)
 
-# Lexington, Kentucky
+## Lexington, Kentucky
 ![](png/lexington.png)

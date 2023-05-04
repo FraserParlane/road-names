@@ -33,10 +33,10 @@ def run():
     rn.load_box(lon_min=-122.63, lon_max=-122.24, lat_min=37.56, lat_max=37.91)
     rn.plot(filename='sanfrancisco', legend_x=0.05, legend_y=0.05)
 
-    logging.debug('\n\nLondon, England')
+    logging.debug('\n\nNew York, New York')
     rn = RoadNames()
-    rn.load_box(lon_min=-0.50, lon_max=0.26, lat_min=51.30, lat_max=51.67)
-    rn.plot(filename='london', legend_x=0.05, legend_y=0.05)
+    rn.load_box(lon_min=-74.04, lon_max=-73.82, lat_min=40.68, lat_max=40.87)
+    rn.plot(filename='newyork', legend_x=0.05, legend_y=0.05)
 
 
 if __name__ == '__main__':
