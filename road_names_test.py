@@ -21,6 +21,13 @@ med_area = {
     'lat_max': 49.28,
 }
 
+large_area = {
+    'lon_min': -123.2901,
+    'lon_max': -123.0007,
+    'lat_min': 49.2296,
+    'lat_max': 49.3692,
+}
+
 
 class TestRoadNames(unittest.TestCase):
 
@@ -71,6 +78,6 @@ class TestRoadNames(unittest.TestCase):
 
     def test_plot(self):
         rn = RoadNames()
-        rn.load_box(**med_area)
+        rn.load_box(**large_area)
         rn.generate_views()
         rn.plot()

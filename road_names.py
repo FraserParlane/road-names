@@ -213,12 +213,12 @@ class RoadNames:
         self.bbox: Optional[BBox] = None
         self.use_cache = use_cache
         self.osm: Optional[bytes] = None
-        self.xml: Optional[lxml.etree.Element] = None
+        self.xml: Optional[etree.Element] = None
         self.views: List[View] = []
         self.ways: List = []
         self.id_table: Optional[pd.DataFrame] = None
-        self.width: Optional[Int] = None
-        self.height: Optional[Int] = None
+        self.width: Optional[int] = None
+        self.height: Optional[int] = None
         self.filename: Optional[str] = None
 
     def load_box(
@@ -395,6 +395,8 @@ class RoadNames:
             self,
             filename: str = 'default',
             width: int = 1000,
+            legend_x: float = 0.05,
+            legend_y: float = 0.05,
     ):
         """
         Create a plot of the defined BBox.
@@ -411,16 +413,53 @@ class RoadNames:
         svg = elements.svg
         path = elements.path
         rect = elements.rect
+        text = elements.text
 
         # Define the color dictionary
-        colors = ["#ea5545", "#f46a9b", "#ef9b20", "#edbf33", "#ede15b", "#bdcf32", "#87bc45", "#27aeef", "#b33dc6"]
+        colors = [
+            '#ea5545',
+            '#f46a9b',
+            '#ef9b20',
+            '#edbf33',
+            '#ede15b',
+            '#bdcf32',
+            '#87bc45',
+            '#27aeef',
+            '#b33dc6',
+        ]
+
         colors = {
+
+            # 'Street': '#FF2D55',
+            # 'Street': '#52BFD9',
+            # 'Avenue': '#FFA742',
+            # 'Road': '#FC5449',
+            # 'Drive': '#1A6899',
+
+            # 'Street': '#ff6961',
+            # 'Avenue': '#08cad1',
+            # 'Road': '#42d6a4',
+
+            # 'Street': '#ffa600',
+            # 'Avenue': '#bc5090',
+            # 'Road': '#ff6361',
+            # 'Drive': '#58508d',
+            # 'Mall': '#003f5c',
+
             'Street': '#ea5545',
-            'Avenue': '#f46a9b',
-            'Road': '#ede15b',
-            'Drive': '#ef9b20',
-            'Bridge': '#edbf33',
-            'unknown': '#ffffff',
+            'Avenue': '#27aeef',
+            'Road': '#b33dc6',
+            'Drive': '#bdcf32',
+            'Mall': '#ef9b20',
+            'Boulevard': '#f46a9b',
+            'Crescent': '#edbf33',
+
+            # 'Street': '#ea5545',
+            # 'Avenue': '#f46a9b',
+            # 'Road': '#ede15b',
+            # 'Drive': '#ef9b20',
+            # 'Bridge': '#edbf33',
+            # 'unknown': '#ffffff',
         }
 
         # Create a document with a grey background
@@ -435,8 +474,12 @@ class RoadNames:
             y='0',
             width=str(self.width),
             height=str(self.height),
-            fill='#151515',
+            fill='#202020',
         ))
+
+        # Create a place to store suffix usage.
+        color_missing = {}
+        color_used = {}
 
         # Iterate through the views
         logging.debug('Plotting')
@@ -462,15 +505,68 @@ class RoadNames:
                 # Get color
                 try:
                     color = colors[suffix]
+
+                    # Log usage
+                    if suffix in color_used.keys():
+                        color_used[suffix] += 1
+                    else:
+                        color_used[suffix] = 1
                 except KeyError:
-                    color = '#ffffff'
+
+                    # Log missing color
+                    if suffix in color_missing.keys():
+                        color_missing[suffix] += 1
+                    else:
+                        color_missing[suffix] = 1
+
+                    color = '#303030'
 
                 # Make path and append
                 p = path(
                     d=d,
-                    style=f'fill:none;stroke-width:1;stroke:{color};',
+                    style=f'fill:none;stroke-width:1;stroke:{color};stroke-opacity:1;',
                 )
                 doc.append(p)
+
+        # Plot the legend.
+        # First sort colors by usage
+        colors_sorted = sorted(color_used.items(), key=lambda x: x[1])[::-1]
+        legend_x_abs = self.width * legend_x
+        legend_y_abs = self.height * legend_y
+        y_offset = 20
+        line_length = 30
+        for i, (suffix, count) in enumerate(colors_sorted):
+
+            # Plot line
+            color = colors[suffix]
+            d = f'M {legend_x_abs} {legend_y_abs + i * y_offset} l {line_length} 0 z'
+            p = path(
+                d=d,
+                style=f'fill:none;stroke-width:2;stroke:{color};'
+            )
+            doc.append(p)
+
+            # Text
+            t = text(
+                x=str(legend_x_abs + line_length + 10),
+                y=str(legend_y_abs + i * y_offset + 5),
+                # style='fill:#DDDDDD;',
+                style=f'fill:{color};',
+            )
+            t.attrib['font-size'] = '1.5em'
+
+            t.text=suffix
+            doc.append(t)
+
+
+
+            print('a')
+
+        # Log missing road suffix colors
+        print('Missing colors:')
+        for key, val in sorted(color_missing.items(), key=lambda x: x[1]):
+            print(f'{key}: {val}')
+
 
         # Save to disk
         if not os.path.exists('svg'):
