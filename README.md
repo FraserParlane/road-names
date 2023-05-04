@@ -9,6 +9,9 @@ This package colorizes roads based on their suffix. (e.g., road, street, avenue,
 Vancouver, BC, Canada
 ![](png/vancouver.png)
 
+San Francisco, California
+![](png/sanfrancisco.png)
+
 Kelowna, BC, Canada
 ![](png/kelowna.png)
 
@@ -17,6 +20,3 @@ Lexington, Kentucky
 
 London, England
 ![](png/london.png)
-
-San Francisco, California
-![](png/sanfrancisco.png)

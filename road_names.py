@@ -423,36 +423,7 @@ class RoadNames:
         text = elements.text
 
         # Define the color dictionary
-        colors = [
-            '#ea5545',
-            '#f46a9b',
-            '#ef9b20',
-            '#edbf33',
-            '#ede15b',
-            '#bdcf32',
-            '#87bc45',
-            '#27aeef',
-            '#b33dc6',
-        ]
-
         colors = {
-
-            # 'Street': '#FF2D55',
-            # 'Street': '#52BFD9',
-            # 'Avenue': '#FFA742',
-            # 'Road': '#FC5449',
-            # 'Drive': '#1A6899',
-
-            # 'Street': '#ff6961',
-            # 'Avenue': '#08cad1',
-            # 'Road': '#42d6a4',
-
-            # 'Street': '#ffa600',
-            # 'Avenue': '#bc5090',
-            # 'Road': '#ff6361',
-            # 'Drive': '#58508d',
-            # 'Mall': '#003f5c',
-
             'Street': '#ea5545',
             'Avenue': '#27aeef',
             'Road': '#ef9b20',
@@ -465,13 +436,6 @@ class RoadNames:
             'Highway': '#606060',
             'Lane': '#344F73',
             'Way': '#004645',
-
-            # 'Street': '#ea5545',
-            # 'Avenue': '#f46a9b',
-            # 'Road': '#ede15b',
-            # 'Drive': '#ef9b20',
-            # 'Bridge': '#edbf33',
-            # 'unknown': '#ffffff',
         }
 
         # Create a document with a grey background
@@ -568,12 +532,8 @@ class RoadNames:
             t.text = suffix
             doc.append(t)
 
-        # Log missing road suffix colors
-        print('Missing colors:')
-        for key, val in sorted(color_missing.items(), key=lambda x: x[1]):
-            print(f'{key}: {val}')
-
         # Save to disk
+        logging.debug('Saving to disk.')
         svg_string = etree.tostring(doc, pretty_print=True)
         if as_svg:
             if not os.path.exists('svg'):
