@@ -17,6 +17,3 @@ Kelowna, BC, Canada
 
 Lexington, Kentucky
 ![](png/lexington.png)
-
-London, England
-![](png/london.png)
